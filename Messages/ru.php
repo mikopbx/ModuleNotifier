@@ -8,20 +8,19 @@
  */
 
 return [
-	'repModuleTemplate'         => 'Модуль шаблон - %repesent%',
-	'mo_ModuleModuleTemplate'   => 'Модуль шаблон',
-    'BreadcrumbModuleTemplate'  => 'Шаблонный модуль',
-    'SubHeaderModuleTemplate'   => 'Пример для создания собственных модулей',
+	'repModuleNotifier'         => 'Уведомления в телеграм - %repesent%',
+	'mo_ModuleModuleNotifier'   => 'Уведомления в телеграм',
+    'BreadcrumbModuleNotifier'  => 'Уведомления в телеграм',
+    'SubHeaderModuleNotifier'   => 'Модуль позволяет отправлять уведомления в телеграм группу',
     'module_template_AddNewRecord'  => 'Добавить',
-    'mod_tpl_TextFieldLabel'        => 'Пример текстового поля',
-    'mod_tpl_TextAreaFieldLabel'    => 'Пример многостраничного поля',
-    'mod_tpl_PasswordFieldLabel'    => 'Пример поля с паролем',
-    'mod_tpl_IntegerFieldLabel'     => 'Пример числового поля',
-    'mod_tpl_CheckBoxFieldLabel'    => 'Чекбокс',
-    'mod_tpl_ToggleFieldLabel'      => 'Переключатель',
-    'mod_tpl_DropDownFieldLabel'    => 'Выпадающее меню',
-    'mod_tpl_ValidateValueIsEmpty'  => 'Проверьте поле, оно не заполнено',
-    'mod_tpl_Connected'             => 'Модуль подключен',
-    'mod_tpl_Disconnected'          => 'Модуль отключен',
-    'mod_tpl_UpdateStatus'          => 'Обновление статуса',
+
+    'module_notifierbotApiKey'          => 'Telegram Bot Token',
+    'module_notifierchatId'             => 'Telegram chat ID',
+    'module_messageTemplate'            => 'Шаблон оповещения о входящем',
+
+    'module_notifier_CALL_TYPE_INCOMING'     => 'Входящий звонок с номера: %src% на %dst%, did: %did%',
+    'module_notifier_CALL_TYPE_OUTGOING'     => 'Исходящий звонок с номера: %src% на %dst% через %line%',
+    'module_notifier_CALL_TYPE_OUTGOING_FAIL'=> 'Разговор с номера: %src% на %dst% через %line% не состоялся',
+    'module_notifier_CALL_TYPE_MISSED'       => 'Разговор с номера с номера: %src% на %dst% не состоялся, did: %did%',
+    'module_notifier_CALL_AUDIO'       => 'Запись разговора с номера: %src% на %dst%',
 ];

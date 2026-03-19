@@ -6,7 +6,7 @@
  * Written by Alexey Portnov, 5 2019
  */
 
-namespace Modules\ModuleTemplate\Setup;
+namespace Modules\ModuleNotifier\Setup;
 
 use MikoPBX\Modules\Setup\PbxExtensionSetupBase;
 
@@ -15,7 +15,7 @@ use MikoPBX\Modules\Setup\PbxExtensionSetupBase;
  * Class PbxExtensionSetup
  * Module installer and uninstaller
  *
- * @package Modules\ModuleTemplate\Setup
+ * @package Modules\ModuleNotifier\Setup
  */
 class PbxExtensionSetup extends PbxExtensionSetupBase
 {

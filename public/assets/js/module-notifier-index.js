@@ -7,13 +7,13 @@
  * Written by Nikolay Beketov, 11 2018
  *
  */
-var idUrl = 'module-template';
-var idForm = 'module-template-form';
-var className = 'ModuleTemplate';
+var idUrl = 'module-notifier';
+var idForm = 'module-notifier-form';
+var className = 'ModuleNotifier';
 var inputClassName = 'mikopbx-module-input';
 /* global globalRootUrl, globalTranslate, Form, Config */
 
-var ModuleTemplate = {
+var ModuleNotifier = {
   $formObj: $('#' + idForm),
   $checkBoxes: $('#' + idForm + ' .ui.checkbox'),
   $dropDowns: $('#' + idForm + ' .ui.dropdown'),
@@ -485,22 +485,22 @@ var ModuleTemplate = {
     switch (status) {
       case 'Connected':
         window[className].$moduleStatus.removeClass('grey').removeClass('red').addClass('green');
-        window[className].$moduleStatus.html(globalTranslate.mod_tpl_Connected);
+        window[className].$moduleStatus.html(globalTranslate.module_notifierConnected);
         break;
 
       case 'Disconnected':
         window[className].$moduleStatus.removeClass('green').removeClass('red').addClass('grey');
-        window[className].$moduleStatus.html(globalTranslate.mod_tpl_Disconnected);
+        window[className].$moduleStatus.html(globalTranslate.module_notifierDisconnected);
         break;
 
       case 'Updating':
         window[className].$moduleStatus.removeClass('green').removeClass('red').addClass('grey');
-        window[className].$moduleStatus.html("<i class=\"spinner loading icon\"></i>".concat(globalTranslate.mod_tpl_UpdateStatus));
+        window[className].$moduleStatus.html("<i class=\"spinner loading icon\"></i>".concat(globalTranslate.module_notifierUpdateStatus));
         break;
 
       default:
         window[className].$moduleStatus.removeClass('green').removeClass('red').addClass('grey');
-        window[className].$moduleStatus.html(globalTranslate.mod_tpl_Disconnected);
+        window[className].$moduleStatus.html(globalTranslate.module_notifierDisconnected);
         break;
     }
   }
@@ -508,4 +508,4 @@ var ModuleTemplate = {
 $(document).ready(function () {
   window[className].initialize();
 });
-//# sourceMappingURL=module-template-index.js.map
+//# sourceMappingURL=module-notifier-index.js.map

@@ -1,6 +1,6 @@
 <?php
 
-namespace Modules\ModuleTemplate\Lib;
+namespace Modules\ModuleNotifier\Lib;
 
 
 use MikoPBX\Core\System\Processes;
@@ -10,7 +10,7 @@ use MikoPBX\Modules\PbxExtensionBase;
 use MikoPBX\Modules\PbxExtensionUtils;
 use MikoPBX\PBXCoreREST\Lib\PBXApiResult;
 
-class TemplateMain extends PbxExtensionBase
+class NotifierMain extends PbxExtensionBase
 {
     /**
      * Process something received over AsteriskAMI
@@ -58,7 +58,7 @@ class TemplateMain extends PbxExtensionBase
         if ( ! $moduleEnabled) {
             return;
         }
-        $configClass      = new TemplateConf();
+        $configClass      = new NotifierConf();
         $workersToRestart = $configClass->getModuleWorkers();
 
         if ($restart) {

@@ -7,7 +7,7 @@
  */
 
 
-namespace Modules\ModuleTemplate\Models;
+namespace Modules\ModuleNotifier\Models;
 
 use MikoPBX\Modules\Models\ModulesModelsBase;
 

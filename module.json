@@ -1,7 +1,7 @@
 {
   "developer":"MIKO",
-  "moduleUniqueID":"ModuleTemplate",
+  "moduleUniqueID":"ModuleNotifier",
   "support_email": "help@miko.ru",
-  "version": "%ModuleVersion%",
+  "version": "1.0",
   "min_pbx_version": "2020.2.757"
 }

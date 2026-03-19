@@ -5,19 +5,19 @@
  * Proprietary and confidential
  * Written by Alexey Portnov, 11 2018
  */
-namespace Modules\ModuleTemplate\App\Controllers;
+namespace Modules\ModuleNotifier\App\Controllers;
 use MikoPBX\AdminCabinet\Controllers\BaseController;
 use MikoPBX\Common\Models\CallQueues;
 use MikoPBX\Common\Models\Extensions;
 use MikoPBX\Modules\PbxExtensionUtils;
-use Modules\ModuleTemplate\App\Forms\ModuleTemplateForm;
-use Modules\ModuleTemplate\Models\ModuleTemplate;
+use Modules\ModuleNotifier\App\Forms\ModuleNotifierForm;
+use Modules\ModuleNotifier\Models\ModuleNotifier;
 use MikoPBX\Common\Models\Providers;
-use Modules\ModuleTemplate\Models\PhoneBook;
+use Modules\ModuleNotifier\Models\PhoneBook;
 
-class ModuleTemplateController extends BaseController
+class ModuleNotifierController extends BaseController
 {
-    private $moduleUniqueID = 'ModuleTemplate';
+    private $moduleUniqueID = 'ModuleNotifier';
     private $moduleDir;
 
     /**
@@ -93,16 +93,16 @@ class ModuleTemplateController extends BaseController
         $footerCollection = $this->assets->collection('footerJS');
         $footerCollection->addJs('js/pbx/main/form.js', true);
         $footerCollection->addJs('js/vendor/datatable/dataTables.semanticui.js', true);
-        $footerCollection->addJs("js/cache/{$this->moduleUniqueID}/module-template-index.js", true);
+        $footerCollection->addJs("js/cache/{$this->moduleUniqueID}/module-notifier-index.js", true);
         $footerCollection->addJs('js/vendor/jquery.tablednd.min.js', true);
 
         $headerCollectionCSS = $this->assets->collection('headerCSS');
-        $headerCollectionCSS->addCss("css/cache/{$this->moduleUniqueID}/module-template.css", true);
+        $headerCollectionCSS->addCss("css/cache/{$this->moduleUniqueID}/module-notifier.css", true);
         $headerCollectionCSS->addCss('css/vendor/datatable/dataTables.semanticui.min.css', true);
 
-        $settings = ModuleTemplate::findFirst();
+        $settings = ModuleNotifier::findFirst();
         if ($settings === null) {
-            $settings = new ModuleTemplate();
+            $settings = new ModuleNotifier();
         }
 
         // For example we add providers list on the form
@@ -113,7 +113,7 @@ class ModuleTemplateController extends BaseController
         }
         $options['providers']=$providersList;
 
-        $this->view->form = new ModuleTemplateForm($settings, $options);
+        $this->view->form = new ModuleNotifierForm($settings, $options);
         $this->view->pick("{$this->moduleDir}/App/Views/index");
 
         // Список выбора очередей.
@@ -127,9 +127,9 @@ class ModuleTemplateController extends BaseController
     public function saveAction() :void
     {
         $data       = $this->request->getPost();
-        $record = ModuleTemplate::findFirst();
+        $record = ModuleNotifier::findFirst();
         if ($record === null) {
-            $record = new ModuleTemplate();
+            $record = new ModuleNotifier();
         }
         $this->db->begin();
         foreach ($record as $key => $value) {
@@ -264,7 +264,7 @@ class ModuleTemplateController extends BaseController
         if(empty($tableName)){
             return '';
         }
-        $className = "Modules\ModuleTemplate\Models\\$tableName";
+        $className = "Modules\ModuleNotifier\Models\\$tableName";
         if(!class_exists($className)){
             $className = '';
         }

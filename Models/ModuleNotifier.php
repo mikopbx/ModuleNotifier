@@ -41,6 +41,27 @@ class ModuleNotifier extends ModulesModelsBase
     public $chatId;
 
     /**
+     * Messenger type: 'telegram' or 'vk'
+     *
+     * @Column(type="string", nullable=true)
+     */
+    public $messengerType = 'telegram';
+
+    /**
+     * VK community access token
+     *
+     * @Column(type="string", nullable=true)
+     */
+    public $vkToken;
+
+    /**
+     * VK peer_id (conversation ID)
+     *
+     * @Column(type="string", nullable=true)
+     */
+    public $vkPeerId;
+
+    /**
      * Text field example
      *
      * @Column(type="string", nullable=true)

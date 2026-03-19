@@ -25,54 +25,126 @@ const ModuleNotifier = {
 	 * https://semantic-ui.com/behaviors/form.html
 	 */
 	validateRules: {
-		textField: {
-			identifier: 'text_field',
-			rules: [
-				{
-					type: 'empty',
-					prompt: globalTranslate.mod_tplValidateValueIsEmpty,
-				},
-			],
-		},
-		areaField: {
-			identifier: 'text_area_field',
-			rules: [
-				{
-					type: 'empty',
-					prompt: globalTranslate.mod_tplValidateValueIsEmpty,
-				},
-			],
-		},
-		passwordField: {
-			identifier: 'password_field',
-			rules: [
-				{
-					type: 'empty',
-					prompt: globalTranslate.mod_tplValidateValueIsEmpty,
-				},
-			],
-		},
 	},
 	/**
 	 * On page load we init some Semantic UI library
 	 */
+	/**
+	 * Toggle Telegram/VK fields based on messenger type selection
+	 */
+	toggleMessengerFields(value) {
+		if (value === 'vk') {
+			$('#telegram-fields').hide();
+			$('#vk-fields').show();
+		} else {
+			$('#telegram-fields').show();
+			$('#vk-fields').hide();
+		}
+	},
+	/**
+	 * Fetch VK conversations and populate dropdown
+	 */
+	getVkChats() {
+		var vkToken = $('#vkToken').val();
+		if (!vkToken) {
+			return;
+		}
+		$('#btn-get-vk-chats').addClass('loading');
+		$.api({
+			url: globalRootUrl + idUrl + '/getVkConversations',
+			on: 'now',
+			method: 'POST',
+			data: { vkToken: vkToken },
+			onSuccess: function(response) {
+				$('#btn-get-vk-chats').removeClass('loading');
+				if (response.success && response.data && response.data.length > 0) {
+					var menu = $('#vk-chats-menu');
+					menu.empty();
+					var currentPeerId = $('#vkPeerId').val();
+					for (var i = 0; i < response.data.length; i++) {
+						var chat = response.data[i];
+						var label = chat.title + ' (' + chat.members + ' уч.) — ' + chat.peer_id;
+						var cls = 'item';
+						if (chat.peer_id === currentPeerId) {
+							cls += ' active selected';
+						}
+						menu.append('<div class="' + cls + '" data-value="' + chat.peer_id + '">' + label + '</div>');
+					}
+					$('#vk-chats-dropdown').dropdown({
+						onChange: function(value) {
+							$('#vkPeerId').val(value);
+						}
+					});
+					if (currentPeerId) {
+						$('#vk-chats-dropdown').dropdown('set selected', currentPeerId);
+					}
+					$('#vk-chats-field').show();
+				} else {
+					var msg = (response.message) ? response.message : 'No chats found';
+					$('#test-message-result').html('<span class="ui red text">' + msg + '</span>');
+				}
+			},
+			onFailure: function() {
+				$('#btn-get-vk-chats').removeClass('loading');
+				$('#test-message-result').html('<span class="ui red text">Request failed</span>');
+			}
+		});
+	},
+	/**
+	 * Send test message to selected messenger
+	 */
+	sendTestMessage() {
+		var messengerType = $('#messengerType').val();
+		var data = { messengerType: messengerType };
+		if (messengerType === 'vk') {
+			data.vkToken = $('#vkToken').val();
+			data.vkPeerId = $('#vkPeerId').val();
+		} else {
+			data.botApiKey = $('#botApiKey').val();
+			data.chatId = $('#chatId').val();
+		}
+		$('#btn-send-test').addClass('loading');
+		$('#test-message-result').html('');
+		$.api({
+			url: globalRootUrl + idUrl + '/sendTestMessage',
+			on: 'now',
+			method: 'POST',
+			data: data,
+			onSuccess: function(response) {
+				$('#btn-send-test').removeClass('loading');
+				if (response.success) {
+					$('#test-message-result').html('<span class="ui green text"><i class="check icon"></i>' + response.message + '</span>');
+				} else {
+					$('#test-message-result').html('<span class="ui red text"><i class="times icon"></i>' + (response.message || 'Error') + '</span>');
+				}
+			},
+			onFailure: function() {
+				$('#btn-send-test').removeClass('loading');
+				$('#test-message-result').html('<span class="ui red text">Request failed</span>');
+			}
+		});
+	},
 	initialize() {
 		// инициализируем чекбоксы и выподающие менюшки
 		window[className].$checkBoxes.checkbox();
 		window[className].$dropDowns.dropdown();
+
+		// Messenger type dropdown with show/hide logic
+		$('#messengerType').closest('.ui.dropdown').dropdown({
+			onChange: window[className].toggleMessengerFields,
+		});
+		window[className].toggleMessengerFields($('#messengerType').val());
+
+		// VK chats button
+		$('#btn-get-vk-chats').on('click', window[className].getVkChats);
+
+		// Send test message button
+		$('#btn-send-test').on('click', window[className].sendTestMessage);
+
 		window[className].checkStatusToggle();
 		window.addEventListener('ModuleStatusChanged', window[className].checkStatusToggle);
 		window[className].initializeForm();
 		$('.menu .item').tab();
-		$.get( idUrl + '/getTablesDescription', function( result ) {
-			for (let key in result['data']) {
-				let tableName = key + '-table';
-				if( $('#'+tableName).attr('id') === undefined){
-					continue;
-				}
-				window[className].initTable(tableName, result['data'][key]);
-			}
-		});
 	},
 	/**
 	 * Подготавливает список выбора

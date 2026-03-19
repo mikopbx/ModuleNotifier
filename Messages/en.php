@@ -8,13 +8,20 @@
  */
 
 return [
-    'repModuleNotifier'         => 'Уведомления в телеграм - %repesent%',
-    'mo_ModuleModuleNotifier'   => 'Уведомления в телеграм',
-    'BreadcrumbModuleNotifier'  => 'Уведомления в телеграм',
-    'SubHeaderModuleNotifier'   => 'Модуль позволяет отправлять уведомления в телеграм группу',
-    'module_template_AddNewRecord'  => 'Добавить',
+    'repModuleNotifier'         => 'Call notifications - %repesent%',
+    'mo_ModuleModuleNotifier'   => 'Call notifications',
+    'BreadcrumbModuleNotifier'  => 'Call notifications',
+    'SubHeaderModuleNotifier'   => 'Send call notifications to Telegram or VK group',
+    'module_template_AddNewRecord'  => 'Add',
 
     'module_notifierbotApiKey'          => 'Telegram Bot Token',
-    'module_notifierchatId'             => 'Telegram chat ID',
-    'module_messageTemplate'            => 'Шаблон оповещения о входящем',
+    'module_notifierchatId'             => 'Telegram Chat ID',
+    'module_messageTemplate'            => 'Incoming call notification template',
+
+    'module_notifier_messengerType'     => 'Notification channel',
+    'module_notifier_vkToken'           => 'VK Access Token (community token)',
+    'module_notifier_vkPeerId'          => 'VK Peer ID (conversation ID)',
+    'module_notifier_GetChats'          => 'Get chats',
+    'module_notifier_SelectChat'        => 'Select chat',
+    'module_notifier_SendTest'          => 'Send test message',
 ];

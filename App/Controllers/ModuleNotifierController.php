@@ -272,6 +272,124 @@ class ModuleNotifierController extends BaseController
     }
 
     /**
+     * Get VK conversations list via VK API
+     */
+    public function getVkConversationsAction(): void
+    {
+        $vkToken = $this->request->getPost('vkToken', 'string', '');
+        if (empty($vkToken)) {
+            $this->view->success = false;
+            $this->view->message = 'VK Token is empty';
+            return;
+        }
+        $ch = curl_init('https://api.vk.com/method/messages.getConversations');
+        curl_setopt_array($ch, [
+            CURLOPT_POST           => true,
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_TIMEOUT        => 10,
+            CURLOPT_POSTFIELDS     => http_build_query([
+                'access_token' => $vkToken,
+                'v'            => '5.199',
+                'count'        => 50,
+            ]),
+        ]);
+        $response = curl_exec($ch);
+        curl_close($ch);
+        $body = json_decode($response, true);
+        if (isset($body['error'])) {
+            $this->view->success = false;
+            $this->view->message = $body['error']['error_msg'] ?? 'VK API error';
+            return;
+        }
+        $conversations = [];
+        foreach ($body['response']['items'] ?? [] as $item) {
+            $peer = $item['conversation']['peer'] ?? [];
+            if ($peer['type'] !== 'chat') {
+                continue;
+            }
+            $title = $item['conversation']['chat_settings']['title'] ?? '';
+            $membersCount = $item['conversation']['chat_settings']['members_count'] ?? 0;
+            $conversations[] = [
+                'peer_id' => (string)$peer['id'],
+                'title'   => $title,
+                'members' => $membersCount,
+            ];
+        }
+        $this->view->success = true;
+        $this->view->data    = $conversations;
+    }
+
+    /**
+     * Send test message to VK or Telegram
+     */
+    public function sendTestMessageAction(): void
+    {
+        $messengerType = $this->request->getPost('messengerType', 'string', 'telegram');
+        $message = 'Тестовое сообщение ModuleNotifier ' . date('Y-m-d H:i:s');
+
+        if ($messengerType === 'vk') {
+            $vkToken  = $this->request->getPost('vkToken', 'string', '');
+            $vkPeerId = $this->request->getPost('vkPeerId', 'string', '');
+            if (empty($vkToken) || empty($vkPeerId)) {
+                $this->view->success = false;
+                $this->view->message = 'VK Token or Peer ID is empty';
+                return;
+            }
+            $ch = curl_init('https://api.vk.com/method/messages.send');
+            curl_setopt_array($ch, [
+                CURLOPT_POST           => true,
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_TIMEOUT        => 10,
+                CURLOPT_POSTFIELDS     => http_build_query([
+                    'peer_id'      => $vkPeerId,
+                    'message'      => $message,
+                    'random_id'    => random_int(1, PHP_INT_MAX),
+                    'access_token' => $vkToken,
+                    'v'            => '5.199',
+                ]),
+            ]);
+            $response = curl_exec($ch);
+            curl_close($ch);
+            $body = json_decode($response, true);
+            if (isset($body['error'])) {
+                $this->view->success = false;
+                $this->view->message = $body['error']['error_msg'] ?? 'VK API error';
+                return;
+            }
+            $this->view->success = true;
+            $this->view->message = 'message_id=' . ($body['response'] ?? '?');
+        } else {
+            $botApiKey = $this->request->getPost('botApiKey', 'string', '');
+            $chatId    = $this->request->getPost('chatId', 'string', '');
+            if (empty($botApiKey) || empty($chatId)) {
+                $this->view->success = false;
+                $this->view->message = 'Bot Token or Chat ID is empty';
+                return;
+            }
+            $ch = curl_init("https://api.telegram.org/bot{$botApiKey}/sendMessage");
+            curl_setopt_array($ch, [
+                CURLOPT_POST           => true,
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_TIMEOUT        => 10,
+                CURLOPT_POSTFIELDS     => http_build_query([
+                    'chat_id' => $chatId,
+                    'text'    => $message,
+                ]),
+            ]);
+            $response = curl_exec($ch);
+            curl_close($ch);
+            $body = json_decode($response, true);
+            if (!($body['ok'] ?? false)) {
+                $this->view->success = false;
+                $this->view->message = $body['description'] ?? 'Telegram API error';
+                return;
+            }
+            $this->view->success = true;
+            $this->view->message = 'message_id=' . ($body['result']['message_id'] ?? '?');
+        }
+    }
+
+    /**
      * Changes rules priority
      *
      */

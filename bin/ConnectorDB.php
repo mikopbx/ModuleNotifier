@@ -319,26 +319,46 @@ class ConnectorDB extends WorkerBase
         return $response->data;
     }
 
+    /**
+     * Format phone number: 7XXXXXXXXXX, 8XXXXXXXXXX, XXXXXXXXXX (10 digits) → +7XXXXXXXXXX
+     * @param string $number
+     * @return string
+     */
+    public static function formatPhone(string $number): string
+    {
+        $digits = preg_replace('/\D/', '', $number);
+        if (strlen($digits) === 11 && ($digits[0] === '7' || $digits[0] === '8')) {
+            return '+7' . substr($digits, 1);
+        }
+        if (strlen($digits) === 10) {
+            return '+7' . $digits;
+        }
+        return $number;
+    }
+
     private function sendCallMessageToTelegram(array $cdr, string $messageId = ""):PBXApiResult
     {
         $result = new PBXApiResult();
         $line = $this->providerName[$cdr['line']]??$cdr['line'];
+        $src = self::formatPhone($cdr['src'] ?? '');
+        $dst = self::formatPhone($cdr['dst'] ?? '');
+        $did = self::formatPhone($cdr['did'] ?? '');
         if($cdr['typeCall'] === CallHistory::CALL_TYPE_INCOMING){
-            $message = self::translate('module_notifier_CALL_TYPE_INCOMING',  ['src' => $cdr['src'], 'dst' => $line, 'did' => $cdr['did']]);
+            $message = self::translate('module_notifier_CALL_TYPE_INCOMING',  ['src' => $src, 'dst' => $line, 'did' => $did]);
         }elseif($cdr['typeCall'] === CallHistory::CALL_TYPE_INNER){
             return $result;
         }elseif($cdr['typeCall'] === CallHistory::CALL_TYPE_OUTGOING && (int)$cdr['answered'] === 0){
-            $message = self::translate('module_notifier_CALL_TYPE_OUTGOING_FAIL',  ['src' => $cdr['src'], 'dst' => $cdr['dst'], 'line' => $line]);
+            $message = self::translate('module_notifier_CALL_TYPE_OUTGOING_FAIL',  ['src' => $src, 'dst' => $dst, 'line' => $line]);
         }elseif($cdr['typeCall'] === CallHistory::CALL_TYPE_OUTGOING){
-            $message = self::translate('module_notifier_CALL_TYPE_OUTGOING',  ['src' => $cdr['src'], 'dst' => $cdr['dst'], 'line' => $line]);
+            $message = self::translate('module_notifier_CALL_TYPE_OUTGOING',  ['src' => $src, 'dst' => $dst, 'line' => $line]);
         }elseif($cdr['typeCall'] === CallHistory::CALL_TYPE_MISSED){
-            $message = self::translate('module_notifier_CALL_TYPE_MISSED',  ['src' => $cdr['src'], 'dst' => $line, 'did' => $cdr['did']]);
+            $message = self::translate('module_notifier_CALL_TYPE_MISSED',  ['src' => $src, 'dst' => $line, 'did' => $did]);
         }else{
             return $result;
         }
         $message .= " ($cdr[linkedid])";
         if(!empty($messageId)){
-            $res =  Notifier::invoke(Notifier::ACTION_EDIT_MESSAGE, [$message, $messageId]);
+            $res =  Notifier::invoke(Notifier::ACTION_EDIT_MESSAGE, [$messageId, $message]);
         }else{
             $res =  Notifier::invoke(Notifier::ACTION_SEND_MESSAGE, [$message]);
         }
@@ -358,8 +378,10 @@ class ConnectorDB extends WorkerBase
         if($data){
             $messageId = $data->messageId;
         }
-        $title = "$dbData[src_num] - $dbData[dst_num]";
-        $messageText = self::translate('module_notifier_CALL_AUDIO',  ['src' => $dbData['src_num'], 'dst' => $dbData['dst_num']]);
+        $srcFormatted = self::formatPhone($dbData['src_num']);
+        $dstFormatted = self::formatPhone($dbData['dst_num']);
+        $title = "$srcFormatted - $dstFormatted";
+        $messageText = self::translate('module_notifier_CALL_AUDIO',  ['src' => $srcFormatted, 'dst' => $dstFormatted]);
         Notifier::invoke(Notifier::ACTION_SEND_AUDIO, [$messageText, $dbData['recordingfile'], $title, $messageId], false);
     }
 
@@ -371,14 +393,28 @@ class ConnectorDB extends WorkerBase
      *
      * @return string The translated text.
      */
+    private static $moduleTranslations = null;
+
     public static function translate(string $text, array $params): string
     {
-        $newText = $text;
-        $di = MikoPBXVersion::getDefaultDi();
-        if ($di !== null) {
-            $di->setShared(LanguageProvider::PREFERRED_LANG_WEB, true);
-            $newText = $di->getShared(TranslationProvider::SERVICE_NAME)->_($text, $params);
-            $di->remove(LanguageProvider::PREFERRED_LANG_WEB);
+        // Load module translations directly from file
+        if (self::$moduleTranslations === null) {
+            $di = MikoPBXVersion::getDefaultDi();
+            $lang = 'ru';
+            if ($di !== null) {
+                $lang = $di->getShared('config')->path('General.WebAdminLanguage') ?: 'ru';
+            }
+            $moduleDir = dirname(__DIR__);
+            $langFile = $moduleDir . '/Messages/' . $lang . '.php';
+            if (!file_exists($langFile)) {
+                $langFile = $moduleDir . '/Messages/en.php';
+            }
+            self::$moduleTranslations = file_exists($langFile) ? include $langFile : [];
+        }
+
+        $newText = self::$moduleTranslations[$text] ?? $text;
+        foreach ($params as $key => $value) {
+            $newText = str_replace('%' . $key . '%', $value, $newText);
         }
         return $newText;
     }

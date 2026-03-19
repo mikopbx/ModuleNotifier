@@ -29,6 +29,20 @@ class ModuleNotifierForm extends Form
         $this->add(new Text('botApiKey'));
         $this->add(new Text('chatId'));
 
+        // Messenger type selector
+        $messengerTypes = [
+            'telegram' => 'Telegram',
+            'vk'       => 'VKontakte',
+        ];
+        $this->add(new Select('messengerType', $messengerTypes, [
+            'useEmpty' => false,
+            'class'    => 'ui selection dropdown',
+        ]));
+
+        // VK fields
+        $this->add(new Text('vkToken'));
+        $this->add(new Text('vkPeerId'));
+
         $rows = max(round(strlen($entity->messageTemplate) / 95), 2);
         $this->add(new TextArea('messageTemplate', ['rows' => $rows]));
 

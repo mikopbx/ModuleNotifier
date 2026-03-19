@@ -8,15 +8,22 @@
  */
 
 return [
-	'repModuleNotifier'         => 'Уведомления в телеграм - %repesent%',
-	'mo_ModuleModuleNotifier'   => 'Уведомления в телеграм',
-    'BreadcrumbModuleNotifier'  => 'Уведомления в телеграм',
-    'SubHeaderModuleNotifier'   => 'Модуль позволяет отправлять уведомления в телеграм группу',
+	'repModuleNotifier'         => 'Уведомления о звонках - %repesent%',
+	'mo_ModuleModuleNotifier'   => 'Уведомления о звонках',
+    'BreadcrumbModuleNotifier'  => 'Уведомления о звонках',
+    'SubHeaderModuleNotifier'   => 'Модуль позволяет отправлять уведомления в Telegram или VK группу',
     'module_template_AddNewRecord'  => 'Добавить',
 
     'module_notifierbotApiKey'          => 'Telegram Bot Token',
-    'module_notifierchatId'             => 'Telegram chat ID',
+    'module_notifierchatId'             => 'Telegram Chat ID',
     'module_messageTemplate'            => 'Шаблон оповещения о входящем',
+
+    'module_notifier_messengerType'     => 'Канал уведомлений',
+    'module_notifier_vkToken'           => 'VK Access Token (токен сообщества)',
+    'module_notifier_vkPeerId'          => 'VK Peer ID (ID беседы)',
+    'module_notifier_GetChats'          => 'Получить беседы',
+    'module_notifier_SelectChat'        => 'Выберите беседу',
+    'module_notifier_SendTest'          => 'Отправить тестовое сообщение',
 
     'module_notifier_CALL_TYPE_INCOMING'     => 'Входящий звонок с номера: %src% на %dst%, did: %did%',
     'module_notifier_CALL_TYPE_OUTGOING'     => 'Исходящий звонок с номера: %src% на %dst% через %line%',

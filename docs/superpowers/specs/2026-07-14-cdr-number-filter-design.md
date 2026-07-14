@@ -56,6 +56,11 @@ rejected group performs none of those notification actions. Its CDR position
 is still consumed by the normal synchronization offset logic, so it is not
 reconsidered indefinitely.
 
+Every rejected group writes one informational log entry containing its
+`linkedid` and the reason that neither `src_num` nor `dst_num` matched the
+configured number filter. The entry must not include endpoint numbers, the
+configured list, messenger credentials, or the complete CDR payload.
+
 ## Error handling and compatibility
 
 Malformed input cannot make filtering fail: non-digits are removed and empty
@@ -76,6 +81,8 @@ Automated tests will verify:
 - configuration and CDR values ignore non-digit characters;
 - duplicate and empty configured entries do not alter behavior;
 - matching is exact, so `2001` does not match `12001`.
+- a rejected group logs its `linkedid` and a filter-specific reason before it
+  is skipped.
 
 Form/model checks will verify that `numberFilter` is represented as a
 multiline setting and has Russian and English labels/help text.

@@ -16,6 +16,8 @@
 - Compare normalized values exactly; never use substring matching.
 - An empty normalized list disables filtering and admits all calls.
 - Apply the same filter to Telegram and VKontakte before notification dispatch.
+- Log the rejected group's `linkedid` and filter-specific reason without phone
+  numbers, configured values, credentials, or the full CDR payload.
 - Preserve unrelated untracked files already present in the worktree.
 
 ---
@@ -144,3 +146,37 @@ Expected: no whitespace errors; status lists only the planned feature files plus
 - [ ] **Step 4: Review the final diff against the design**
 
 Confirm that filtering occurs once per complete group, before both text and audio paths, and that empty configuration remains backward compatible.
+
+### Task 5: Rejected-group diagnostics
+
+**Files:**
+- Modify: `bin/ConnectorDB.php:261-266`
+- Modify: `tests/CdrNumberFilterTest.php`
+
+**Interfaces:**
+- Consumes: the existing rejection branch around `CdrNumberFilter::allows()`.
+- Produces: one INFO log entry before every filter-driven `continue`.
+
+- [ ] **Step 1: Add a failing source integration check**
+
+Assert that the rejection branch calls `writeInfo()` with the group's
+`linkedid` and the reason `no src_num or dst_num matches configured number
+filter` before `continue`.
+
+- [ ] **Step 2: Run the test to verify RED**
+
+Run: `php tests/CdrNumberFilterTest.php`
+
+Expected: failure reporting the missing rejection log.
+
+- [ ] **Step 3: Add the minimal diagnostic log**
+
+Write a single INFO entry in the rejection branch. Do not log numbers,
+configuration values, credentials, or the complete CDR.
+
+- [ ] **Step 4: Run focused and syntax verification**
+
+Run: `php tests/CdrNumberFilterTest.php && php -l bin/ConnectorDB.php && git diff --check`
+
+Expected: the test prints `CdrNumberFilterTest: OK`, lint reports no syntax
+errors, and the diff check is silent.

@@ -28,6 +28,7 @@ use MikoPBX\Core\Workers\WorkerBase;
 use MikoPBX\PBXCoreREST\Lib\PBXApiResult;
 use Modules\ModuleNotifier\Lib\Logger;
 use Modules\ModuleNotifier\Lib\MikoPBXVersion;
+use Modules\ModuleNotifier\Lib\VkResponseNormalizer;
 use Modules\ModuleNotifier\Models\ModuleNotifier;
 use Throwable;
 
@@ -178,7 +179,7 @@ class Notifier extends WorkerBase
                 $this->logger->writeError('VK API error: ' . $errorMsg);
                 return ['error' => $errorMsg];
             }
-            return ['ok' => true, 'result' => ['message_id' => $body['response'] ?? 0]];
+            return VkResponseNormalizer::sentMessage($body['response'] ?? 0, $messageText);
         } catch (\Throwable $e) {
             $this->logger->writeError("VK send failed: " . $e->getMessage());
             return ['error' => $e->getMessage()];

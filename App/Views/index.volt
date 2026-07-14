@@ -54,6 +54,12 @@
 
     <div class="ui hidden divider"></div>
 
+    <div class="ten wide field disability">
+        <label>{{ t._('module_notifier_numberFilter') }}</label>
+        {{ form.render('numberFilter') }}
+        <div class="ui pointing label">{{ t._('module_notifier_numberFilter_help') }}</div>
+    </div>
+
     <div class="ten wide field">
         <button class="ui labeled icon basic button" type="button" id="btn-send-test">
             <i class="paper plane icon"></i> {{ t._('module_notifier_SendTest') }}

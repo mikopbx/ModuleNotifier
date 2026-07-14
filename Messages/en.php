@@ -24,4 +24,6 @@ return [
     'module_notifier_GetChats'          => 'Get chats',
     'module_notifier_SelectChat'        => 'Select chat',
     'module_notifier_SendTest'          => 'Send test message',
+    'module_notifier_numberFilter'      => 'Notify only when a number participates in the call',
+    'module_notifier_numberFilter_help' => 'Separate numbers with spaces or line breaks. Special characters are ignored. An empty list allows notifications for all calls.',
 ];

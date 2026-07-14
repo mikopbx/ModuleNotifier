@@ -28,6 +28,7 @@ use MikoPBX\Core\System\BeanstalkClient;
 use MikoPBX\PBXCoreREST\Lib\PBXApiResult;
 use Modules\ModuleNotifier\Lib\MikoPBXVersion;
 use Modules\ModuleNotifier\Lib\CacheManager;
+use Modules\ModuleNotifier\Lib\CdrNumberFilter;
 use Modules\ModuleNotifier\Lib\HistoryParser;
 use Modules\ModuleNotifier\Models\MessageData;
 use Modules\ModuleNotifier\Models\ModuleNotifier;
@@ -51,6 +52,7 @@ class ConnectorDB extends WorkerBase
     public array $providerName = [];
 
     private int $lastSyncTime = 0;
+    private CdrNumberFilter $numberFilter;
 
     /**
      * Старт работы листнера.
@@ -83,6 +85,7 @@ class ConnectorDB extends WorkerBase
         if(!$settings){
             $settings = new ModuleNotifier();
         }
+        $this->numberFilter = new CdrNumberFilter((string)($settings->numberFilter ?? ''));
         if($newCdrOffset > 0){
             $minOffset = HistoryParser::getMinCdrId();
             $settings->cdrOffset = max($newCdrOffset,$minOffset);
@@ -257,6 +260,9 @@ class ConnectorDB extends WorkerBase
 
         foreach ($cdrData as $key => $cdr){
             $cdr['linkedid'] = $key;
+            if (!$this->numberFilter->allows($cdr)) {
+                continue;
+            }
             $this->sendEditMessage($cdr);
             foreach ($cdr['rows'] as $row){
                 /** @var CallHistory $dbData */

@@ -62,6 +62,13 @@ class ModuleNotifier extends ModulesModelsBase
     public $vkPeerId;
 
     /**
+     * Whitespace-separated list of call endpoint numbers that enable notifications
+     *
+     * @Column(type="string", nullable=true)
+     */
+    public $numberFilter;
+
+    /**
      * Text field example
      *
      * @Column(type="string", nullable=true)

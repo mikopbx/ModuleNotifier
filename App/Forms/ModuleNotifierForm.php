@@ -42,6 +42,7 @@ class ModuleNotifierForm extends Form
         // VK fields
         $this->add(new Text('vkToken'));
         $this->add(new Text('vkPeerId'));
+        $this->add(new TextArea('numberFilter', ['rows' => 3]));
 
         $rows = max(round(strlen($entity->messageTemplate) / 95), 2);
         $this->add(new TextArea('messageTemplate', ['rows' => $rows]));

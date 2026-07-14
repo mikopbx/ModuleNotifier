@@ -24,6 +24,8 @@ return [
     'module_notifier_GetChats'          => 'Получить беседы',
     'module_notifier_SelectChat'        => 'Выберите беседу',
     'module_notifier_SendTest'          => 'Отправить тестовое сообщение',
+    'module_notifier_numberFilter'      => 'Оповещать, только если в звонке участвует номер',
+    'module_notifier_numberFilter_help' => 'Номера разделяются пробелами или переводами строк. Спецсимволы игнорируются. Пустой список разрешает уведомления по всем звонкам.',
 
     'module_notifier_CALL_TYPE_INCOMING'     => 'Входящий звонок с номера: %src% на %dst%, did: %did%',
     'module_notifier_CALL_TYPE_OUTGOING'     => 'Исходящий звонок с номера: %src% на %dst% через %line%',

@@ -38,6 +38,11 @@ final class CdrNumberFilter
         return false;
     }
 
+    public function isActive(): bool
+    {
+        return $this->numbers !== [];
+    }
+
     private static function normalize(string $number): string
     {
         return preg_replace('/\D+/', '', $number) ?? '';

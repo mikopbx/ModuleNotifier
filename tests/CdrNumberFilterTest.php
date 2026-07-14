@@ -9,7 +9,14 @@ if (!file_exists($filterFile)) {
 
 require_once $filterFile;
 
+$incomingGateFile = dirname(__DIR__) . '/Lib/IncomingNotificationGate.php';
+if (!file_exists($incomingGateFile)) {
+    throw new RuntimeException('IncomingNotificationGate implementation is missing');
+}
+require_once $incomingGateFile;
+
 use Modules\ModuleNotifier\Lib\CdrNumberFilter;
+use Modules\ModuleNotifier\Lib\IncomingNotificationGate;
 
 /**
  * @param mixed $expected
@@ -38,6 +45,34 @@ assertSameValue(
     (new CdrNumberFilter(''))->allows($multiRowCall),
     'An empty filter must allow every call'
 );
+
+assertSameValue(
+    false,
+    (new CdrNumberFilter(" \n--- (+)"))->isActive(),
+    'A filter containing no digits must be inactive'
+);
+
+assertSameValue(
+    true,
+    (new CdrNumberFilter("---\n2001"))->isActive(),
+    'A filter containing a normalized number must be active'
+);
+
+$dispatchCount = 0;
+(new IncomingNotificationGate('2001'))->dispatch(static function () use (&$dispatchCount): void {
+    $dispatchCount++;
+});
+assertSameValue(0, $dispatchCount, 'An active filter must suppress incoming AGI dispatch');
+
+(new IncomingNotificationGate(''))->dispatch(static function () use (&$dispatchCount): void {
+    $dispatchCount++;
+});
+assertSameValue(1, $dispatchCount, 'An empty filter must dispatch the incoming notification once');
+
+(new IncomingNotificationGate('--- (+)'))->dispatch(static function () use (&$dispatchCount): void {
+    $dispatchCount++;
+});
+assertSameValue(2, $dispatchCount, 'A punctuation-only filter must dispatch the incoming notification once');
 
 assertSameValue(
     true,
@@ -122,6 +157,34 @@ assertSameValue(
         && $filterPosition < $logPosition
         && $logPosition < $continuePosition,
     'ConnectorDB must log the linkedid and filter reason before skipping a group'
+);
+
+$incomingCallSource = file_get_contents(dirname(__DIR__) . '/agi-bin/incoming-call.php');
+assertSameValue(
+    true,
+    $incomingCallSource !== false
+        && strpos($incomingCallSource, 'use Modules\\ModuleNotifier\\Lib\\IncomingNotificationGate;') !== false
+        && strpos($incomingCallSource, 'use Modules\\ModuleNotifier\\Models\\ModuleNotifier;') !== false,
+    'Incoming AGI must use the shared number filter and module settings'
+);
+
+$settingsPosition = $incomingCallSource === false
+    ? false
+    : strpos($incomingCallSource, 'ModuleNotifier::findFirst()');
+$activePosition = $incomingCallSource === false
+    ? false
+    : strpos($incomingCallSource, '->dispatch(');
+$invokePosition = $incomingCallSource === false
+    ? false
+    : strpos($incomingCallSource, "ConnectorDB::invoke('sendEditMessage'");
+assertSameValue(
+    true,
+    $settingsPosition !== false
+        && $activePosition !== false
+        && $invokePosition !== false
+        && $settingsPosition < $activePosition
+        && $activePosition < $invokePosition,
+    'Incoming AGI must exit on an active number filter before sending a notification'
 );
 
 $modelSource = file_get_contents(dirname(__DIR__) . '/Models/ModuleNotifier.php');

@@ -109,6 +109,21 @@ assertSameValue(
     'ConnectorDB must reject a complete group before sending its notification'
 );
 
+$rejectionLog = 'Skip CDR group {$key}: no src_num or dst_num matches configured number filter';
+$logPosition = strpos($connectorSource, $rejectionLog);
+$continuePosition = $filterPosition === false
+    ? false
+    : strpos($connectorSource, 'continue;', $filterPosition);
+assertSameValue(
+    true,
+    $logPosition !== false
+        && $filterPosition !== false
+        && $continuePosition !== false
+        && $filterPosition < $logPosition
+        && $logPosition < $continuePosition,
+    'ConnectorDB must log the linkedid and filter reason before skipping a group'
+);
+
 $modelSource = file_get_contents(dirname(__DIR__) . '/Models/ModuleNotifier.php');
 $formSource = file_get_contents(dirname(__DIR__) . '/App/Forms/ModuleNotifierForm.php');
 $viewSource = file_get_contents(dirname(__DIR__) . '/App/Views/index.volt');

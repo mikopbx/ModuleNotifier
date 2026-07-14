@@ -261,6 +261,9 @@ class ConnectorDB extends WorkerBase
         foreach ($cdrData as $key => $cdr){
             $cdr['linkedid'] = $key;
             if (!$this->numberFilter->allows($cdr)) {
+                $this->logger->writeInfo(
+                    "Skip CDR group {$key}: no src_num or dst_num matches configured number filter"
+                );
                 continue;
             }
             $this->sendEditMessage($cdr);
